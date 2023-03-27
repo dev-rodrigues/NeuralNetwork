@@ -3,46 +3,52 @@ from domain.entities import NeuralNetwork
 import numpy as np
 from tqdm import tqdm
 
+from domain.fixture import num_epochs
+
 if __name__ == '__main__':
-    num_epochs = 100
 
     """
-        Cria uma rede neural com 2 neurônios na camada de entrada, 3 neurônios na camada oculta e 1 neurônio na camada 
-        de saída
+    Cria uma rede neural com 2 neurônios na camada de entrada, 3 neurônios na camada oculta e 1 neurônio na camada de saída
     """
-    nn = NeuralNetwork(2, 3, 1)
+    rede = NeuralNetwork(
+        input_dim=2,
+        hidden_dim=3,
+        output_dim=1
+    )
 
     """
         Define o conjunto de dados de entrada e saída esperada
     """
-    x = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
-    y = np.array([[0], [1], [1], [0]])
+    entrada = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+    esperado = np.array([[0], [1], [1], [0]])
 
     """
         Treina a rede neural por 1000 épocas
     """
     for i in tqdm(range(num_epochs)):
-        nn.forward(x)
+        rede.forward(entrada)
 
         # Calcula o erro
-        error = y - nn.output_layer
+        error = esperado - rede.output_layer
 
         """
             Calcula o gradiente da camada de saída usando o erro e a derivada da função de ativação
         """
-        output_gradient = error * nn.relu(nn.output_layer)
+        output_gradient = error * rede.relu(rede.output_layer)
 
         """
             Calcula o gradiente da camada oculta usando o gradiente da camada de saída 
             e a derivada da função de ativação
         """
-        hidden_gradient = np.dot(output_gradient, nn.weights2.T) * nn.relu(nn.hidden_layer)
+        hidden_gradient = np.dot(output_gradient, rede.weights2.T) * rede.relu(rede.hidden_layer)
 
-        # Ajusta os pesos da rede
-        nn.weights2 += np.dot(nn.hidden_layer.T, output_gradient)
-        nn.weights1 += np.dot(x.T, hidden_gradient)
+        """
+            Ajusta os pesos da rede
+        """
+        rede.weights2 += np.dot(rede.hidden_layer.T, output_gradient)
+        rede.weights1 += np.dot(entrada.T, hidden_gradient)
 
     # Execução do teste
     test = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
-    nn.forward(test)
-    print(nn.output_layer)
+    rede.forward(test)
+    print(rede.output_layer)
