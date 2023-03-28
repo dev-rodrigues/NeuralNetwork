@@ -1,21 +1,9 @@
 from domain.entities import NeuralNetwork
-
-import numpy as np
-from tqdm import tqdm
-
 from domain.fixture import num_epochs
 
+import numpy as np
+
 if __name__ == '__main__':
-
-    """
-    Cria uma rede neural com 2 neurônios na camada de entrada, 3 neurônios na camada oculta e 1 neurônio na camada de saída
-    """
-    rede = NeuralNetwork(
-        input_dim=2,
-        hidden_dim=3,
-        output_dim=1
-    )
-
     """
         Define o conjunto de dados de entrada e saída esperada
     """
@@ -23,32 +11,37 @@ if __name__ == '__main__':
     esperado = np.array([[0], [1], [1], [0]])
 
     """
-        Treina a rede neural por 1000 épocas
+        Cria uma rede neural:
+        2 neurônios na camada de entrada 
+        3 neurônios na camada oculta 
+        1 neurônio na camada de saída
     """
-    for i in tqdm(range(num_epochs)):
-        rede.forward(entrada)
+    rede = NeuralNetwork(
+        entrada=2,
+        oculta=3,
+        saida=1,
+    )
 
-        # Calcula o erro
-        error = esperado - rede.output_layer
-
-        """
-            Calcula o gradiente da camada de saída usando o erro e a derivada da função de ativação
-        """
-        output_gradient = error * rede.relu(rede.output_layer)
-
-        """
-            Calcula o gradiente da camada oculta usando o gradiente da camada de saída 
-            e a derivada da função de ativação
-        """
-        hidden_gradient = np.dot(output_gradient, rede.weights2.T) * rede.relu(rede.hidden_layer)
-
-        """
-            Ajusta os pesos da rede
-        """
-        rede.weights2 += np.dot(rede.hidden_layer.T, output_gradient)
-        rede.weights1 += np.dot(entrada.T, hidden_gradient)
+    rede.train(
+        rede=rede,
+        entrada=entrada,
+        esperado=esperado,
+    )
 
     # Execução do teste
-    test = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+    validar = [[0, 0], [0, 1], [1, 0], [1, 1]]
+    print(f"Dados de entrada {validar}")
+    test = np.array(validar)
     rede.forward(test)
-    print(rede.output_layer)
+
+    print("Dados de output  [", ", ".join(str("[") + str(x[0]) + str("]") for x in rede.output_layer), sep="")
+
+    print()
+
+    print(f"Epochs {num_epochs}")
+
+    # Calcular a acuracia
+    predicoes = np.round(rede.output_layer)
+    acuracia = np.mean(predicoes == esperado)
+
+    print(f"Acurácia: {acuracia * 100}%")

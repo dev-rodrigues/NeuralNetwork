@@ -1,6 +1,6 @@
 import numpy as np
 
-num_epochs = 10000000
+num_epochs = 10000
 
 x = np.array([
     # Número 0
